@@ -1,5 +1,3 @@
-"use client";
-
 type ButtonProps = {
   value: string;
   type: "submit" | "button";
