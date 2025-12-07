@@ -32,7 +32,7 @@ export async function submitPurchasesForm(
   formData: FormData,
 ): Promise<ActionState> {
   // 入力内容取得
-  const PpurchasesFormData: PurchasesFormData = {
+  const PurchasesFormData: PurchasesFormData = {
     itemName: formData.get("itemName")?.toString() || "",
     unitPrice: formData.get("unitPrice")?.toString() || "",
     quantity: formData.get("quantity")?.toString() || "",
@@ -43,7 +43,7 @@ export async function submitPurchasesForm(
   };
 
   // バリデーション実行
-  const validationResult = PurchasesSchema.safeParse(PpurchasesFormData);
+  const validationResult = PurchasesSchema.safeParse(PurchasesFormData);
 
   // バリデーションエラーの場合はエラーメッセージを返却して処理終了
   if (!validationResult.success) {
@@ -59,7 +59,7 @@ export async function submitPurchasesForm(
         paymentMethod: errors.paymentMethod || [],
         note: errors.note || [],
       },
-      purchasesFormData: PpurchasesFormData,
+      purchasesFormData: PurchasesFormData,
     };
   }
 
@@ -90,7 +90,7 @@ export async function submitPurchasesForm(
       success: false,
       errors: {},
       serverError: "データベース操作に失敗しました。",
-      purchasesFormData: PpurchasesFormData,
+      purchasesFormData: PurchasesFormData,
     };
   }
 

@@ -18,7 +18,9 @@ export const PAYMENT_METHODS_VALUE = NonEmptyArray(PAYMENT_METHODS);
 function NonEmptyArray(
   arr: typeof PAYMENT_METHODS,
 ): readonly [string, ...string[]] {
-  if (arr.length <= 0) return [""];
+  if (arr.length <= 0) {
+    throw new Error("PAYMENT_METHODS must have at least one item");
+  }
   const result = arr.map((paymentMethods) => paymentMethods.value);
   return [result[0], ...result.slice(1)];
 }
