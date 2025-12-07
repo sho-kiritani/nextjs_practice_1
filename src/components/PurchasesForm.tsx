@@ -2,23 +2,12 @@
 import { useActionState, useEffect, useState } from "react";
 import { z } from "zod";
 import type { Purchases } from "@/generated/prisma/client";
-import { submitPurchasesForm } from "@/lib/actions/purchases";
+import { type FieldErrors, submitPurchasesForm } from "@/lib/actions/purchases";
 import type { Mode } from "@/lib/types/types";
 import { isPurchasesKey } from "@/lib/utils";
 import { PurchasesSchema } from "@/validations/purchases";
 import Button from "./Button";
 import InputItem from "./InputItem";
-
-// クライアントバリデーションエラーState型定義
-type ClientErrors = {
-  itemName?: string[];
-  unitPrice?: string[];
-  quantity?: string[];
-  supplierName?: string[];
-  purchaseDate?: string[];
-  paymentMethod?: string[];
-  note?: string[];
-};
 
 // props型定義
 type Props = {
@@ -68,15 +57,7 @@ export default function PurchasesForm(props: Props) {
   };
 
   // クライアントバリデーションエラーState
-  const [validationErrors, setValidationErrors] = useState<ClientErrors>({
-    itemName: [],
-    unitPrice: [],
-    quantity: [],
-    supplierName: [],
-    purchaseDate: [],
-    paymentMethod: [],
-    note: [],
-  });
+  const [validationErrors, setValidationErrors] = useState<FieldErrors>({});
 
   // サーバーエラーメッセージをvalidationErrorsに設定する
   useEffect(() => {
