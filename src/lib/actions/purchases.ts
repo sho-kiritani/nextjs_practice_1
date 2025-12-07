@@ -82,23 +82,43 @@ export async function submitPurchasesForm(
     };
   }
 
-  if (mode === "regist") {
-    // 新規登録の場合はDB登録
-    await prisma.purchases.create({
-      data: {
-        ...validationResult.data,
+  // DB操作
+
+  try {
+    if (mode === "regist") {
+      // 新規登録の場合はDB登録
+      await prisma.purchases.create({
+        data: {
+          ...validationResult.data,
+        },
+      });
+    } else if (mode === "update" && id) {
+      // 更新の場合はDB更新
+      await prisma.purchases.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...validationResult.data,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Database operation failed", error);
+    return {
+      success: false,
+      errors: {},
+      serverError: "データベース操作に失敗しました。",
+      purchasesFormData: {
+        itemName: itemName?.toString() || "",
+        unitPrice: unitPrice?.toString() || "",
+        quantity: quantity?.toString() || "",
+        supplierName: supplierName?.toString() || "",
+        purchaseDate: purchaseDate?.toString() || "",
+        paymentMethod: paymentMethod?.toString() || "",
+        note: note?.toString() || "",
       },
-    });
-  } else if (mode === "update" && id) {
-    // 更新の場合はDB更新
-    await prisma.purchases.update({
-      where: {
-        id: id,
-      },
-      data: {
-        ...validationResult.data,
-      },
-    });
+    };
   }
 
   redirect("/list");

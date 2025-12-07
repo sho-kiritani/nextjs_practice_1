@@ -160,6 +160,9 @@ export default function PurchasesForm(props: Props) {
     }
   };
 
+  // サーバーエラーメッセージが存在する場合はalert表示
+  if (state.serverError) alert(state.serverError);
+
   return (
     <div className="mx-auto max-w-5xl p-6">
       <h1 className="border-gray-400 border-l-5 py-1 pl-2 text-xl">
