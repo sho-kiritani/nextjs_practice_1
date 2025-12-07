@@ -34,7 +34,7 @@ export default function PurchasesForm(props: Props) {
   const submitAction = submitPurchasesForm.bind(null, _mode, purchase?.id);
 
   // ActionState
-  const [state, formAction] = useActionState(submitAction, {
+  const [state, formAction, pending] = useActionState(submitAction, {
     success: false,
     errors: {},
     purchasesFormData: {},
@@ -243,7 +243,8 @@ export default function PurchasesForm(props: Props) {
             <Button
               type="submit"
               value={_mode === "regist" ? "登録" : "更新"}
-              disabled={state.success}
+              disabled={pending || state.success}
+              loading={pending}
             />
           </div>
         </div>
