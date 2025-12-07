@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { Purchases } from "@/generated/prisma/client";
 import { submitPurchasesForm } from "@/lib/actions/purchases";
 import type { Mode } from "@/lib/types/types";
+import { isPurchasesKey } from "@/lib/utils";
 import { PurchasesSchema } from "@/validations/purchases";
 import Button from "./Button";
 import InputItem from "./InputItem";
@@ -110,39 +111,15 @@ export default function PurchasesForm(props: Props) {
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
+    // Blur対象項目のnameとvalueを取得
     const { name, value } = e.target;
+
+    // nameの型ガード
+    if (!isPurchasesKey(name)) return;
 
     try {
       // zodのparseでバリデーション実行する
-      switch (name) {
-        case "itemName":
-          PurchasesSchema.pick({ itemName: true }).parse({ itemName: value });
-          break;
-        case "unitPrice":
-          PurchasesSchema.pick({ unitPrice: true }).parse({ unitPrice: value });
-          break;
-        case "quantity":
-          PurchasesSchema.pick({ quantity: true }).parse({ quantity: value });
-          break;
-        case "supplierName":
-          PurchasesSchema.pick({ supplierName: true }).parse({
-            supplierName: value,
-          });
-          break;
-        case "purchaseDate":
-          PurchasesSchema.pick({ purchaseDate: true }).parse({
-            purchaseDate: value,
-          });
-          break;
-        case "paymentMethod":
-          PurchasesSchema.pick({ paymentMethod: true }).parse({
-            paymentMethod: value,
-          });
-          break;
-        case "note":
-          PurchasesSchema.pick({ note: true }).parse({ note: value });
-          break;
-      }
+      PurchasesSchema.shape[name].parse(value);
 
       // バリデーション通過の場合はエラーメッセージをクリアする
       setValidationErrors((prev) => ({
