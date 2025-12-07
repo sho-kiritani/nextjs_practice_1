@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { Purchases } from "@/generated/prisma/client";
 import { type FieldErrors, submitPurchasesForm } from "@/lib/actions/purchases";
 import type { Mode } from "@/lib/types/types";
-import { isPurchasesKey } from "@/lib/utils";
+import { formatDate, isPurchasesKey } from "@/lib/utils";
 import { PurchasesSchema } from "@/validations/purchases";
 import Button from "./Button";
 import InputItem from "./InputItem";
@@ -47,7 +47,7 @@ export default function PurchasesForm(props: Props) {
       "",
     purchaseDate:
       (state.purchasesFormData?.purchaseDate ??
-        _formatDate(purchase?.purchaseDate, "-")) ||
+        formatDate(purchase?.purchaseDate, "-")) ||
       "",
     paymentMethod:
       (state.purchasesFormData?.paymentMethod ??
@@ -209,14 +209,4 @@ export default function PurchasesForm(props: Props) {
       </form>
     </div>
   );
-}
-
-function _formatDate(date: Date | undefined, sep = "") {
-  if (date === undefined) return null;
-
-  const yyyy = date.getFullYear();
-  const mm = `00${date.getMonth() + 1}`.slice(-2);
-  const dd = `00${date.getDate()}`.slice(-2);
-
-  return `${yyyy}${sep}${mm}${sep}${dd}`;
 }
