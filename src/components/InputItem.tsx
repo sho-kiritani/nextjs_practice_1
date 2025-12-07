@@ -8,7 +8,7 @@ type InputItemProps = {
   label: string;
   placeholder?: string;
   width: "auto" | "xs" | "sm" | "md" | "lg" | "full";
-  selectItems?: {
+  selectItems?: readonly {
     value: string;
     label: string;
   }[];
@@ -21,20 +21,17 @@ type InputItemProps = {
   defaultValue?: string | number | readonly string[] | undefined;
 };
 
-export default function InputItem(props: InputItemProps) {
-  // props展開
-  const {
-    name,
-    type,
-    label,
-    placeholder,
-    width,
-    selectItems,
-    validationErrorMessages,
-    onBlur,
-    defaultValue,
-  } = props;
-
+export default function InputItem({
+  name,
+  type,
+  label,
+  placeholder,
+  width,
+  selectItems,
+  validationErrorMessages,
+  onBlur,
+  defaultValue,
+}: InputItemProps) {
   // インプット横幅
   const widthSize = {
     auto: "w-auto",
@@ -122,7 +119,7 @@ export default function InputItem(props: InputItemProps) {
 
       {/* バリデーションエラーメッセージ */}
       {validationErrorMessages && validationErrorMessages.length > 0 && (
-        <p className="text-red-500 text-sm">
+        <p className="text-red-500 text-sm" aria-live="polite" role="alert">
           {validationErrorMessages.join(",")}
         </p>
       )}

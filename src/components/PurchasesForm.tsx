@@ -2,22 +2,13 @@
 import { useActionState, useEffect, useState } from "react";
 import { z } from "zod";
 import type { Purchases } from "@/generated/prisma/client";
-import { type ActionState, submitPurchasesForm } from "@/lib/actions/purchases";
+import { type FieldErrors, submitPurchasesForm } from "@/lib/actions/purchases";
+import { PAYMENT_METHODS_SELECT } from "@/lib/constants/paymentMethods";
 import type { Mode } from "@/lib/types/types";
+import { formatDate, isPurchasesKey } from "@/lib/utils";
 import { PurchasesSchema } from "@/validations/purchases";
 import Button from "./Button";
 import InputItem from "./InputItem";
-
-// クライアントバリデーションエラーState型定義
-type ClientErrors = {
-  itemName?: string[];
-  unitPrice?: string[];
-  quantity?: string[];
-  supplierName?: string[];
-  purchaseDate?: string[];
-  paymentMethod?: string[];
-  note?: string[];
-};
 
 // props型定義
 type Props = {
@@ -29,19 +20,16 @@ export default function PurchasesForm(props: Props) {
   const { purchase } = props;
 
   // 更新モード判定
-  const _mode: Mode =
-    purchase !== null && purchase !== undefined ? "update" : "regist";
+  const _mode: Mode = purchase ? "update" : "regist";
+
+  const submitAction = submitPurchasesForm.bind(null, _mode, purchase?.id);
 
   // ActionState
-  const [state, formAction] = useActionState(
-    (prev: ActionState, fd: FormData) =>
-      submitPurchasesForm(prev, fd, _mode, purchase?.id),
-    {
-      success: false,
-      errors: {},
-      purchasesFormData: {},
-    },
-  );
+  const [state, formAction, pending] = useActionState(submitAction, {
+    success: false,
+    errors: {},
+    purchasesFormData: {},
+  });
 
   // フォーム入力値初期値設定
   const defaultValueData = {
@@ -60,7 +48,7 @@ export default function PurchasesForm(props: Props) {
       "",
     purchaseDate:
       (state.purchasesFormData?.purchaseDate ??
-        _formatDate(purchase?.purchaseDate, "-")) ||
+        formatDate(purchase?.purchaseDate, "-")) ||
       "",
     paymentMethod:
       (state.purchasesFormData?.paymentMethod ??
@@ -70,15 +58,7 @@ export default function PurchasesForm(props: Props) {
   };
 
   // クライアントバリデーションエラーState
-  const [validationErrors, setValidationErrors] = useState<ClientErrors>({
-    itemName: [],
-    unitPrice: [],
-    quantity: [],
-    supplierName: [],
-    purchaseDate: [],
-    paymentMethod: [],
-    note: [],
-  });
+  const [validationErrors, setValidationErrors] = useState<FieldErrors>({});
 
   // サーバーエラーメッセージをvalidationErrorsに設定する
   useEffect(() => {
@@ -87,65 +67,21 @@ export default function PurchasesForm(props: Props) {
     }
   }, [state.success, state.errors]);
 
-  // 購入方法
-  const paymentMethods = [
-    {
-      value: "",
-      label: "選択してください",
-    },
-    {
-      value: "money",
-      label: "現金",
-    },
-    {
-      value: "creditCard",
-      label: "クレジットカード",
-    },
-    {
-      value: "lease",
-      label: "リース",
-    },
-  ];
-
   // onBlur関数
   const handleBlur = (
     e: React.FocusEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
   ) => {
+    // Blur対象項目のnameとvalueを取得
     const { name, value } = e.target;
+
+    // nameの型ガード
+    if (!isPurchasesKey(name)) return;
 
     try {
       // zodのparseでバリデーション実行する
-      switch (name) {
-        case "itemName":
-          PurchasesSchema.pick({ itemName: true }).parse({ itemName: value });
-          break;
-        case "unitPrice":
-          PurchasesSchema.pick({ unitPrice: true }).parse({ unitPrice: value });
-          break;
-        case "quantity":
-          PurchasesSchema.pick({ quantity: true }).parse({ quantity: value });
-          break;
-        case "supplierName":
-          PurchasesSchema.pick({ supplierName: true }).parse({
-            supplierName: value,
-          });
-          break;
-        case "purchaseDate":
-          PurchasesSchema.pick({ purchaseDate: true }).parse({
-            purchaseDate: value,
-          });
-          break;
-        case "paymentMethod":
-          PurchasesSchema.pick({ paymentMethod: true }).parse({
-            paymentMethod: value,
-          });
-          break;
-        case "note":
-          PurchasesSchema.pick({ note: true }).parse({ note: value });
-          break;
-      }
+      PurchasesSchema.shape[name].parse(value);
 
       // バリデーション通過の場合はエラーメッセージをクリアする
       setValidationErrors((prev) => ({
@@ -162,6 +98,9 @@ export default function PurchasesForm(props: Props) {
       }
     }
   };
+
+  // サーバーエラーメッセージが存在する場合はalert表示
+  if (state.serverError) alert(state.serverError);
 
   return (
     <div className="mx-auto max-w-5xl p-6">
@@ -225,7 +164,7 @@ export default function PurchasesForm(props: Props) {
             name="paymentMethod"
             label="支払い方法"
             width="auto"
-            selectItems={paymentMethods}
+            selectItems={PAYMENT_METHODS_SELECT}
             validationErrorMessages={validationErrors.paymentMethod}
             onBlur={handleBlur}
             defaultValue={defaultValueData.paymentMethod}
@@ -243,21 +182,12 @@ export default function PurchasesForm(props: Props) {
             <Button
               type="submit"
               value={_mode === "regist" ? "登録" : "更新"}
-              disabled={state.success}
+              disabled={pending || state.success}
+              loading={pending}
             />
           </div>
         </div>
       </form>
     </div>
   );
-}
-
-function _formatDate(date: Date | undefined, sep = "") {
-  if (date === undefined) return null;
-
-  const yyyy = date.getFullYear();
-  const mm = `00${date.getMonth() + 1}`.slice(-2);
-  const dd = `00${date.getDate()}`.slice(-2);
-
-  return `${yyyy}${sep}${mm}${sep}${dd}`;
 }

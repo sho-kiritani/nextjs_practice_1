@@ -17,7 +17,7 @@ export default async function ItemPage({ params }: Params) {
   const purchase = await getPurchase(id);
 
   // 取得できない場合はホームに戻す
-  if (!purchase) redirect("purchase");
+  if (!purchase) redirect("/purchase");
 
   return <PurchasesForm purchase={purchase} />;
 }

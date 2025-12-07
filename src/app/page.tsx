@@ -7,13 +7,13 @@ export default function Home() {
 
       <div className="mt-5 flex flex-col gap-3">
         <Link
-          href="list"
+          href="/list"
           className="text-blue-600 underline hover:text-blue-800"
         >
           購入品一覧
         </Link>
         <Link
-          href="purchase"
+          href="/purchase"
           className="text-blue-600 underline hover:text-blue-800"
         >
           新規登録

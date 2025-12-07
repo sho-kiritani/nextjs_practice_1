@@ -15,7 +15,7 @@ export default async function PurchasesList() {
         {purchases.map((purchase) => (
           <li key={purchase.id} className="mb-1">
             <Link
-              href={`purchase/${purchase.id}`}
+              href={`/purchase/${purchase.id}`}
               className="text-blue-600 underline hover:text-blue-800"
             >
               {purchase.itemName} （単価：{purchase.unitPrice} 個数：
@@ -28,7 +28,7 @@ export default async function PurchasesList() {
       <div className="mt-5 border-gray-300 border-t py-3">
         <Link
           className="inline-block rounded border px-5 py-2 hover:bg-white"
-          href="purchase"
+          href="/purchase"
         >
           新規登録
         </Link>

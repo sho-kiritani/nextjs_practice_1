@@ -2,59 +2,48 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import type { Mode } from "@/lib/types/types";
-import { PurchasesSchema } from "@/validations/purchases";
+import {
+  PurchasesSchema,
+  type PurchasesSchemaType,
+} from "@/validations/purchases";
 
+// フォーム入力値用型定義
 type PurchasesFormData = {
-  itemName?: string;
-  unitPrice?: string;
-  quantity?: string;
-  supplierName?: string;
-  purchaseDate?: string;
-  paymentMethod?: string;
-  note?: string;
+  [K in keyof PurchasesSchemaType]?: string;
+};
+
+// バリデーションエラーメッセージ用型定義
+export type FieldErrors = {
+  [K in keyof PurchasesSchemaType]?: string[];
 };
 
 // useActionState用の型定義
 export type ActionState = {
   success: boolean;
-  errors: {
-    itemName?: string[];
-    unitPrice?: string[];
-    quantity?: string[];
-    supplierName?: string[];
-    purchaseDate?: string[];
-    paymentMethod?: string[];
-    note?: string[];
-  };
+  errors: FieldErrors;
   serverError?: string;
   purchasesFormData: PurchasesFormData;
 };
 
 export async function submitPurchasesForm(
+  mode: Mode,
+  id: string | undefined,
   _prevState: ActionState,
   formData: FormData,
-  mode: Mode,
-  id?: string,
 ): Promise<ActionState> {
   // 入力内容取得
-  const itemName = formData.get("itemName");
-  const unitPrice = formData.get("unitPrice");
-  const quantity = formData.get("quantity");
-  const supplierName = formData.get("supplierName");
-  const purchaseDate = formData.get("purchaseDate");
-  const paymentMethod = formData.get("paymentMethod");
-  const note = formData.get("note");
+  const PurchasesFormData: PurchasesFormData = {
+    itemName: formData.get("itemName")?.toString() || "",
+    unitPrice: formData.get("unitPrice")?.toString() || "",
+    quantity: formData.get("quantity")?.toString() || "",
+    supplierName: formData.get("supplierName")?.toString() || "",
+    purchaseDate: formData.get("purchaseDate")?.toString() || "",
+    paymentMethod: formData.get("paymentMethod")?.toString() || "",
+    note: formData.get("note")?.toString() || "",
+  };
 
   // バリデーション実行
-  const validationResult = PurchasesSchema.safeParse({
-    itemName,
-    unitPrice,
-    quantity,
-    supplierName,
-    purchaseDate,
-    paymentMethod,
-    note,
-  });
+  const validationResult = PurchasesSchema.safeParse(PurchasesFormData);
 
   // バリデーションエラーの場合はエラーメッセージを返却して処理終了
   if (!validationResult.success) {
@@ -70,35 +59,39 @@ export async function submitPurchasesForm(
         paymentMethod: errors.paymentMethod || [],
         note: errors.note || [],
       },
-      purchasesFormData: {
-        itemName: itemName?.toString() || "",
-        unitPrice: unitPrice?.toString() || "",
-        quantity: quantity?.toString() || "",
-        supplierName: supplierName?.toString() || "",
-        purchaseDate: purchaseDate?.toString() || "",
-        paymentMethod: paymentMethod?.toString() || "",
-        note: note?.toString() || "",
-      },
+      purchasesFormData: PurchasesFormData,
     };
   }
 
-  if (mode === "regist") {
-    // 新規登録の場合はDB登録
-    await prisma.purchases.create({
-      data: {
-        ...validationResult.data,
-      },
-    });
-  } else if (mode === "update" && id) {
-    // 更新の場合はDB更新
-    await prisma.purchases.update({
-      where: {
-        id: id,
-      },
-      data: {
-        ...validationResult.data,
-      },
-    });
+  // DB操作
+
+  try {
+    if (mode === "regist") {
+      // 新規登録の場合はDB登録
+      await prisma.purchases.create({
+        data: {
+          ...validationResult.data,
+        },
+      });
+    } else if (mode === "update" && id) {
+      // 更新の場合はDB更新
+      await prisma.purchases.update({
+        where: {
+          id,
+        },
+        data: {
+          ...validationResult.data,
+        },
+      });
+    }
+  } catch (error) {
+    console.error("Database operation failed", error);
+    return {
+      success: false,
+      errors: {},
+      serverError: "データベース操作に失敗しました。",
+      purchasesFormData: PurchasesFormData,
+    };
   }
 
   redirect("/list");
