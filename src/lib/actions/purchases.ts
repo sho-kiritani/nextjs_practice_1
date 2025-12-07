@@ -31,10 +31,10 @@ export type ActionState = {
 };
 
 export async function submitPurchasesForm(
+  mode: Mode,
+  id: string | undefined,
   _prevState: ActionState,
   formData: FormData,
-  mode: Mode,
-  id?: string,
 ): Promise<ActionState> {
   // 入力内容取得
   const itemName = formData.get("itemName");

@@ -2,7 +2,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { z } from "zod";
 import type { Purchases } from "@/generated/prisma/client";
-import { type ActionState, submitPurchasesForm } from "@/lib/actions/purchases";
+import { submitPurchasesForm } from "@/lib/actions/purchases";
 import type { Mode } from "@/lib/types/types";
 import { PurchasesSchema } from "@/validations/purchases";
 import Button from "./Button";
@@ -29,19 +29,16 @@ export default function PurchasesForm(props: Props) {
   const { purchase } = props;
 
   // 更新モード判定
-  const _mode: Mode =
-    purchase !== null && purchase !== undefined ? "update" : "regist";
+  const _mode: Mode = purchase ? "update" : "regist";
+
+  const submitAction = submitPurchasesForm.bind(null, _mode, purchase?.id);
 
   // ActionState
-  const [state, formAction] = useActionState(
-    (prev: ActionState, fd: FormData) =>
-      submitPurchasesForm(prev, fd, _mode, purchase?.id),
-    {
-      success: false,
-      errors: {},
-      purchasesFormData: {},
-    },
-  );
+  const [state, formAction] = useActionState(submitAction, {
+    success: false,
+    errors: {},
+    purchasesFormData: {},
+  });
 
   // フォーム入力値初期値設定
   const defaultValueData = {
