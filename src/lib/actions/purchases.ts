@@ -77,7 +77,7 @@ export async function submitPurchasesForm(
       // 更新の場合はDB更新
       await prisma.purchases.update({
         where: {
-          id: id,
+          id,
         },
         data: {
           ...validationResult.data,
