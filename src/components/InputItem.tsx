@@ -21,20 +21,17 @@ type InputItemProps = {
   defaultValue?: string | number | readonly string[] | undefined;
 };
 
-export default function InputItem(props: InputItemProps) {
-  // props展開
-  const {
-    name,
-    type,
-    label,
-    placeholder,
-    width,
-    selectItems,
-    validationErrorMessages,
-    onBlur,
-    defaultValue,
-  } = props;
-
+export default function InputItem({
+  name,
+  type,
+  label,
+  placeholder,
+  width,
+  selectItems,
+  validationErrorMessages,
+  onBlur,
+  defaultValue,
+}: InputItemProps) {
   // インプット横幅
   const widthSize = {
     auto: "w-auto",
