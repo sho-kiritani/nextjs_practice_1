@@ -8,7 +8,7 @@ type InputItemProps = {
   label: string;
   placeholder?: string;
   width: "auto" | "xs" | "sm" | "md" | "lg" | "full";
-  selectItems?: {
+  selectItems?: readonly {
     value: string;
     label: string;
   }[];

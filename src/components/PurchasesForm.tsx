@@ -3,6 +3,7 @@ import { useActionState, useEffect, useState } from "react";
 import { z } from "zod";
 import type { Purchases } from "@/generated/prisma/client";
 import { type FieldErrors, submitPurchasesForm } from "@/lib/actions/purchases";
+import { PAYMENT_METHODS_SELECT } from "@/lib/constants/paymentMethods";
 import type { Mode } from "@/lib/types/types";
 import { formatDate, isPurchasesKey } from "@/lib/utils";
 import { PurchasesSchema } from "@/validations/purchases";
@@ -65,26 +66,6 @@ export default function PurchasesForm(props: Props) {
       setValidationErrors(state.errors);
     }
   }, [state.success, state.errors]);
-
-  // 購入方法
-  const paymentMethods = [
-    {
-      value: "",
-      label: "選択してください",
-    },
-    {
-      value: "money",
-      label: "現金",
-    },
-    {
-      value: "creditCard",
-      label: "クレジットカード",
-    },
-    {
-      value: "lease",
-      label: "リース",
-    },
-  ];
 
   // onBlur関数
   const handleBlur = (
@@ -183,7 +164,7 @@ export default function PurchasesForm(props: Props) {
             name="paymentMethod"
             label="支払い方法"
             width="auto"
-            selectItems={paymentMethods}
+            selectItems={PAYMENT_METHODS_SELECT}
             validationErrorMessages={validationErrors.paymentMethod}
             onBlur={handleBlur}
             defaultValue={defaultValueData.paymentMethod}

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PAYMENT_METHODS_VALUE } from "@/lib/constants/paymentMethods";
 
 export const PurchasesSchema = z.object({
   itemName: z.string().trim().min(1, "購入品は必須です。"),
@@ -31,7 +32,7 @@ export const PurchasesSchema = z.object({
     .trim()
     .min(1, "支払い方法を選択してください。")
     .pipe(
-      z.enum(["money", "creditCard", "lease"], {
+      z.enum(PAYMENT_METHODS_VALUE, {
         errorMap: () => ({ message: "不正なステータス値です。" }),
       }),
     ),
