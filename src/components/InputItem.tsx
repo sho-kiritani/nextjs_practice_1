@@ -122,7 +122,7 @@ export default function InputItem(props: InputItemProps) {
 
       {/* バリデーションエラーメッセージ */}
       {validationErrorMessages && validationErrorMessages.length > 0 && (
-        <p className="text-red-500 text-sm">
+        <p className="text-red-500 text-sm" aria-live="polite" role="alert">
           {validationErrorMessages.join(",")}
         </p>
       )}
